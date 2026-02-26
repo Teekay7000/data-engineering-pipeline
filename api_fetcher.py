@@ -11,7 +11,7 @@ logging.basicConfig(
 )
 log = logging.getLogger(__name__)
 
-# ── Config ────────────────────────────────────────────────────────────────────
+# 
 WB_BASE_URL = "https://api.worldbank.org/v2"
 START_YEAR  = 2000
 END_YEAR    = 2023
@@ -31,7 +31,7 @@ AFRICAN_COUNTRIES = [
     "UGA", "ZMB", "ZWE", "SYC",
 ]
 
-# ── Helpers ───────────────────────────────────────────────────────────────────
+#
 
 def build_url(country_code: str, indicator_code: str, page: int = 1) -> str:
     params = urllib.parse.urlencode({
@@ -57,7 +57,7 @@ def get(url: str, retries: int = 3, backoff: float = 2.0):
     return None
 
 
-# ── Core fetch ────────────────────────────────────────────────────────────────
+#
 
 def fetch_indicator(country_code: str, indicator_code: str) -> list:
     """Fetch all yearly records for one country + indicator (handles pagination)."""
@@ -113,7 +113,7 @@ def fetch_all_african_data() -> dict:
     return results
 
 
-# ── Entry point ───────────────────────────────────────────────────────────────
+# 
 
 if __name__ == "__main__":
     raw_data = fetch_all_african_data()
@@ -126,4 +126,5 @@ if __name__ == "__main__":
             iso3    = rec.get("countryiso3code", "?")
             year    = rec.get("date", "?")
             value   = rec.get("value")
+
             print(f"  {iso3}  {country:<25}  {year}  →  {value}")
