@@ -1,26 +1,3 @@
-"""
-database.py
-===========
-Stores raw World Bank API data (GDP Growth & Unemployment)
-for all African countries into PostgreSQL.
-
-Tables created
-──────────────
-    raw_gdp_growth      — one row per (country, year)
-    raw_unemployment    — one row per (country, year)
-
-Usage
-─────
-    # Configure your DB connection at the top, then:
-    python database.py
-
-    # Or import and call from another script:
-    from database import init_db, save_raw_records
-
-Requirements
-────────────
-    pip install psycopg2-binary
-"""
 
 import logging
 import psycopg2
@@ -35,7 +12,7 @@ logging.basicConfig(
 )
 log = logging.getLogger(__name__)
 
-# ── PostgreSQL connection settings — update these ─────────────────────────────
+# Connection
 DB_CONFIG = {
     "host":     "localhost",
     "port":     5432,
@@ -44,13 +21,13 @@ DB_CONFIG = {
     "password": "2411",
 }
 
-# Map indicator name → table name
+# Table names
 TABLE_MAP = {
     "gdp_growth":   "raw_gdp_growth",
     "unemployment": "raw_unemployment",
 }
 
-# ── DDL ───────────────────────────────────────────────────────────────────────
+
 DDL = """
 CREATE TABLE IF NOT EXISTS raw_gdp_growth (
     id              SERIAL          PRIMARY KEY,
@@ -78,7 +55,7 @@ CREATE TABLE IF NOT EXISTS raw_unemployment (
 """
 
 
-# ── Connection ────────────────────────────────────────────────────────────────
+# Connection2
 
 @contextmanager
 def get_conn():
@@ -94,7 +71,7 @@ def get_conn():
         conn.close()
 
 
-# ── Schema ────────────────────────────────────────────────────────────────────
+# Schema
 
 def init_db() -> None:
     """Create staging tables if they don't already exist."""
@@ -104,21 +81,10 @@ def init_db() -> None:
     log.info("Tables ready: raw_gdp_growth, raw_unemployment")
 
 
-# ── Write ─────────────────────────────────────────────────────────────────────
+# 
 
 def save_raw_records(indicator_name: str, records: list) -> int:
-    """
-    Upsert raw World Bank API records into the correct PostgreSQL table.
-
-    Parameters
-    ----------
-    indicator_name : "gdp_growth" or "unemployment"
-    records        : list of raw dicts straight from the World Bank API
-
-    Returns
-    -------
-    int — number of rows upserted
-    """
+    
     table = TABLE_MAP.get(indicator_name)
     if not table:
         raise ValueError(f"Unknown indicator: '{indicator_name}'. "
@@ -172,13 +138,9 @@ def save_raw_records(indicator_name: str, records: list) -> int:
     return len(rows)
 
 
-# ── Read (optional helper) ────────────────────────────────────────────────────
+#
 
 def load_raw_records(indicator_name: str) -> list:
-    """
-    Read all rows from a raw staging table.
-    Returns a list of dicts ordered by country + year.
-    """
     table = TABLE_MAP.get(indicator_name)
     if not table:
         raise ValueError(f"Unknown indicator: '{indicator_name}'")
@@ -195,8 +157,7 @@ def load_raw_records(indicator_name: str) -> list:
     return rows
 
 
-# ── Row counts helper ─────────────────────────────────────────────────────────
-
+# 
 def row_counts() -> dict:
     """Return row counts for both staging tables."""
     counts = {}
@@ -208,7 +169,7 @@ def row_counts() -> dict:
     return counts
 
 
-# ── Entry point ───────────────────────────────────────────────────────────────
+# 
 
 if __name__ == "__main__":
     import sys
@@ -242,4 +203,5 @@ if __name__ == "__main__":
     log.info("  DONE — Final row counts")
     log.info("═" * 55)
     for ind, count in row_counts().items():
+
         log.info("  %-20s  %d rows", ind, count)
