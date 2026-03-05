@@ -18,7 +18,7 @@ DB_CONFIG = {
     "port":     5432,
     "dbname":   "worldbank_africa",
     "user":     "postgres",
-    "password": "2411",
+    "password": "", #use your postgres password 
 }
 
 # Table names
@@ -205,3 +205,4 @@ if __name__ == "__main__":
     for ind, count in row_counts().items():
 
         log.info("  %-20s  %d rows", ind, count)
+
