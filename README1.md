@@ -1,89 +1,188 @@
-data-engineering-pipeline 
-
-
+Data Engineering Pipeline
 World Bank Africa — GDP & Unemployment Data Pipeline
 
-A data engineering pipeline that fetches GDP Growth and Unemployment data for all 54 African countries from the World Bank API and stores the raw data in PostgreSQL.
-Project Structure
+A complete data engineering pipeline that fetches, stores, transforms, and prepares GDP Growth and Unemployment data for all 54 African countries using the World Bank API.
 
-├── api_fetcher.py       # Fetches raw data from the World Bank API
+Overview
+
+This project demonstrates an end-to-end pipeline in Data Engineering:
+
+API → Raw Data (PostgreSQL) → Data Transformation → Analytics-Ready Data
+ Project Structure
+├── api_fetcher.py       # Fetches raw data from World Bank API
 ├── database.py          # Stores raw data into PostgreSQL
+├── transformer.py       # Cleans, joins, and engineers features
 └── README.md
+Tech Stack
+
+Python 3.8+
+
+PostgreSQL
+
+psycopg2
+
+SQL
 
 Requirements
 
-    Python 3.8+
-    PostgreSQL
-    psycopg2
-
-Install the required library:
+Install dependencies:
 
 pip install psycopg2-binary
-
 PostgreSQL Setup
 
-    Open pgAdmin and create the database:
+Create database:
 
 CREATE DATABASE worldbank_africa;
 
-    Update the DB_CONFIG in database.py with your credentials:
+Update your config in scripts:
 
 DB_CONFIG = {
-    "host":     "localhost",
-    "port":     5432,
-    "dbname":   "worldbank_africa",
-    "user":     "postgres",
+    "host": "localhost",
+    "port": 5432,
+    "dbname": "worldbank_africa",
+    "user": "postgres",
     "password": "your_password_here",
 }
-
 How to Run
-
-database.py automatically calls api_fetcher.py so you only need to run one command:
-
+Step 1: Load Raw Data
 python database.py
 
 This will:
 
-    Create the tables in PostgreSQL
-    Fetch all data from the World Bank API
-    Store the raw data into the database
+Create raw tables
+
+Fetch data from API
+
+Store raw data
+
+Step 2: Transform Data
+python transformer.py
+
+This will:
+
+Join raw datasets
+
+Clean missing values
+
+Compute features
+
+Store results in cleaned_data
 
 Data Source
 
 World Bank Open Data API
-Indicator 	Code 	Description
-GDP Growth 	NY.GDP.MKTP.KD.ZG 	GDP growth (annual %)
-Unemployment 	SL.UEM.TOTL.ZS 	Unemployment, total (% of labour force)
 
-    Countries: All 54 African Union member states
-    Years: 2000 – 2023
+Indicator	Code	Description
+GDP Growth	NY.GDP.MKTP.KD.ZG	GDP growth (annual %)
+Unemployment	SL.UEM.TOTL.ZS	Unemployment (% of labour force)
 
-Database Tables
-raw_gdp_growth
-Column 	Type 	Description
-id 	SERIAL 	Primary key
-country_iso3 	CHAR(3) 	ISO 3-letter country code
-country_name 	TEXT 	Full country name
-year 	SMALLINT 	Year of the data point
-value 	NUMERIC 	GDP growth % (NULL if missing)
-indicator_id 	TEXT 	World Bank indicator code
-indicator_name 	TEXT 	World Bank indicator description
-fetched_at 	TIMESTAMPTZ 	Timestamp of when data was fetched
-raw_unemployment
+Countries: 54 African Union member states
 
-Same structure as raw_gdp_growth but stores unemployment % values.
+Years: 2000 – 2023
+
+Database Layers
+1. Raw Layer
+raw_gdp_growth / raw_unemployment
+Column	Type	Description
+id	SERIAL	Primary key
+country_iso3	CHAR(3)	Country code
+country_name	TEXT	Country name
+year	SMALLINT	Year
+value	NUMERIC	Indicator value
+indicator_id	TEXT	API indicator
+indicator_name	TEXT	Indicator name
+fetched_at	TIMESTAMPTZ	Timestamp
+2. Cleaned Layer (NEW)
+cleaned_data
+Column	Type	Description
+id	SERIAL	Primary key
+country_iso3	CHAR(3)	Country code
+country_name	TEXT	Country name
+year	SMALLINT	Year
+gdp_growth	NUMERIC	GDP growth %
+unemployment	NUMERIC	Unemployment %
+gdp_growth_lag1	NUMERIC	Previous year GDP
+gdp_growth_roll5	NUMERIC	5-year rolling GDP
+unemp_roll5	NUMERIC	5-year rolling unemployment
+cleaned_at	TIMESTAMPTZ	Processing timestamp
+Transformation Logic (transformer.py)
+Data Cleaning
+
+Joins GDP and unemployment tables
+
+Drops rows with NULL values
+
+Ensures valid country-year pairs
+
+Feature Engineering
+Feature	Description
+gdp_growth_lag1	Previous year GDP growth
+gdp_growth_roll5	5-year rolling GDP average
+unemp_roll5	5-year rolling unemployment
+Performance Optimization
+
+Uses batch inserts (execute_batch)
+
+Efficient grouping and sorting in Python
+
+Idempotent Loads
+
+Uses ON CONFLICT DO UPDATE
+
+Safe to re-run pipeline without duplicates
+
+Example Output
+ISO3  Country        Year   GDP%    UNEMP%   LAG1   ROLL5_G   ROLL5_U
+ZAF   South Africa   2015   1.200   25.300   2.100  1.800     24.900
 African Countries Covered
 
-All 54 African Union member states including Nigeria, South Africa, Egypt, Ethiopia, Kenya, Ghana, Morocco, Tanzania, Algeria, and more.
+All 54 African Union member states including:
+
+Nigeria
+
+South Africa
+
+Egypt
+
+Kenya
+
+Ghana
+
+Morocco
+
+Tanzania
+
+Algeria
+
 Notes
 
-    Re-running database.py will not create duplicate rows — it uses ON CONFLICT DO UPDATE to safely upsert data.
-    Rows where the API returns no value are stored as NULL and are not dropped at this stage.
-    The API is called with a 0.15s delay between requests to avoid rate limiting.
+Missing API values are stored as NULL in raw data
 
-Next steps
+Cleaned layer removes incomplete records
 
-    Data cleaning
-    Create dimension tables
-    Create fact tables
+API calls include delay (0.15s) to avoid rate limits
+
+Key Concepts Demonstrated
+
+ETL Pipelines
+
+Data Cleaning & Validation
+
+Feature Engineering
+
+Batch Processing
+
+Transaction Management
+
+Idempotent Database Design
+
+Next Steps
+
+Build dimension tables & fact tables (star schema)
+
+Add pipeline orchestration (e.g. Apache Airflow)
+
+Create dashboards (Power BI / Tableau)
+
+Add data quality checks
     Automate pipeline
