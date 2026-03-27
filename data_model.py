@@ -16,7 +16,7 @@ DB_CONFIG = {
     "port":     5432,
     "dbname":   "worldbank_africa",
     "user":     "postgres",
-    "password": "2411",
+    "password": "your__password here",
 }
 
 AFRICAN_REGIONS = {
@@ -268,7 +268,7 @@ def preview():
     def fmt(v):
         return f"{float(v):.3f}" if v is not None else "NULL"
 
-    print(f"\n── STAR SCHEMA PREVIEW (first 10 rows) ─────────────────────────────────")
+    print(f"\n STAR SCHEMA PREVIEW (first 10 rows)")
     print(f"  {'Country':<22} {'Region':<17} {'Year':<6} {'Decade':<8} {'GDP%':<8} {'UNEMP%'}")
     print("  " + "-" * 75)
     for r in rows:
@@ -277,16 +277,16 @@ def preview():
 
 
 if __name__ == "__main__":
-    log.info("STEP 1 — Create star schema tables")
+    log.info("STEP 1 Create star schema tables")
     create_star_schema()
 
-    log.info("STEP 2 — Load dim_country")
+    log.info("STEP 2 Load dim_country")
     load_dim_country()
 
-    log.info("STEP 3 — Load dim_time")
+    log.info("STEP 3 Load dim_time")
     load_dim_time()
 
-    log.info("STEP 4 — Load fact_indicators")
+    log.info("STEP 4 Load fact_indicators")
     load_fact_indicators()
 
     preview()
