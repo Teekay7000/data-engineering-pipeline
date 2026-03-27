@@ -173,7 +173,7 @@ def preview():
     def fmt(v):
         return f"{float(v):.3f}" if v is not None else "NULL"
 
-    print(f"\n── CLEANED DATA — {total} total rows ───────────────────────────────────")
+    print(f"\n── CLEANED DATA — {total} total rows")
     print(f"  {'ISO3':<5} {'Country':<22} {'Year':<6} {'GDP%':<8} {'UNEMP%':<8} {'LAG1':<8} {'ROLL5_G':<9} {'ROLL5_U'}")
     print("  " + "-" * 82)
     for r in rows:
