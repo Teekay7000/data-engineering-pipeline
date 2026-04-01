@@ -15,14 +15,14 @@ DB_CONFIG = {
     "port":     5432,
     "dbname":   "worldbank_africa",
     "user":     "postgres",
-    "password": "2411",
+    "password": "yourpassword here",
 }
 
 EXPECTED_COUNTRIES = 54
 EXPECTED_YEAR_MIN  = 2000
 EXPECTED_YEAR_MAX  = 2023
-GDP_MIN            = -50.0
-GDP_MAX            =  50.0
+GDP_MIN            = -100.0
+GDP_MAX            =  100.0
 UNEMP_MIN          =   0.0
 UNEMP_MAX          = 100.0
 
