@@ -27,17 +27,6 @@ DB_CONFIG = {
     "password": "2411",
 }
 
-# ── Indexes ───────────────────────────────────────────────────────────────────
-# Run these once in PostgreSQL to speed up queries:
-#
-#   CREATE INDEX IF NOT EXISTS idx_fact_country  ON fact_indicators (country_iso3);
-#   CREATE INDEX IF NOT EXISTS idx_fact_year     ON fact_indicators (year);
-#   CREATE INDEX IF NOT EXISTS idx_dim_region    ON dim_country (region);
-#
-# These indexes make filtering by country, year and region significantly faster
-# especially as the dataset grows over time.
-# ─────────────────────────────────────────────────────────────────────────────
-
 
 @contextmanager
 def get_conn():
@@ -48,7 +37,7 @@ def get_conn():
         conn.close()
 
 
-# ── Health check ──────────────────────────────────────────────────────────────
+
 
 @app.get("/health")
 def health():
@@ -56,7 +45,6 @@ def health():
     return {"status": "ok"}
 
 
-#All countries
 
 @app.get("/countries")
 def get_countries(
@@ -266,7 +254,7 @@ def get_summary(
     }
 
 
-#Regions
+
 
 @app.get("/regions")
 def get_regions():
